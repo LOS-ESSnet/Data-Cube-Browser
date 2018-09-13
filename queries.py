@@ -69,7 +69,7 @@ def query_dimensions():
     results=results["results"]["bindings"]
     keys=list(results[0].keys())
     
-    return [{'label': result[keys[0]]['value'],'value': result[keys[1]]['value']} for result in results]
+    return [keys,[{'label': result[keys[0]]['value'],'value': result[keys[1]]['value']} for result in results]]
     
 def query_measures():
     
@@ -97,4 +97,4 @@ def query_measures():
     results=results["results"]["bindings"]
     keys=list(results[0].keys())
 
-    return [{'label': result[keys[0]]['value'],'value': result[keys[1]]['value']} for result in results]
+    return [keys,[{'label': result[keys[0]]['value'],'value': result[keys[1]]['value']} for result in results]]
