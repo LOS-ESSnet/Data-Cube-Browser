@@ -71,7 +71,6 @@ def test(input_value):
     [State("endpoints-list", "value")]
 )
 def get_dimensions_or_measures(dataset_uri, endpoint):
-    # TODO use Salim code for multiple selection
     dim_data = query_dimensions(endpoint, dataset_uri)
     dim_rows = dim_data[1]
     measures_data = query_measures(endpoint, dataset_uri)
