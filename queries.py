@@ -57,7 +57,7 @@ def query_dimensions():
         ?s a qb:DataSet.
         ?s qb:structure ?dsd.
         ?dsd qb:component/qb:dimension ?dim.
-        ?dim rdfs:label ?labelfr
+        ?dim rdfs:label ?labelfr.
 
         filter(langMatches(lang(?labelfr),"en"))
         BIND(IF(BOUND(?labelfr), ?labelfr,?dim) AS ?label)
@@ -86,9 +86,8 @@ def query_measures():
         ?s a qb:DataSet.
         ?s qb:structure ?dsd.
         ?dsd qb:component/qb:measure ?measure .
-        ?measure rdfs:label ?labelfr
+        ?measure rdfs:label ?labelfr.
 
-        filter(langMatches(lang(?labelfr),"fr"))
         BIND(IF(BOUND(?labelfr), ?labelfr,"NO LABEL !!!"@fr) AS ?label)
     } LIMIT 100
     """
