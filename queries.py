@@ -103,7 +103,8 @@ def query_measures(target_url, dataset_uri):
         <{dataset_uri}> qb:structure ?dsd.
         ?dsd qb:component/qb:measure ?measure .
         ?measure rdfs:label ?labelfr.
-        OPTIONAL{{filter(langMatches(lang(?labelfr),"en"))}}
+        OPTIONAL{{
+            filter(langMatches(lang(?labelfr),"en"))}}
 
         #BIND(IF(BOUND(?labelfr), ?labelfr,"NO LABEL !!!"@fr) AS ?label)
     }}

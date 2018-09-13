@@ -58,7 +58,6 @@ app.layout = html.Div(
         ]
     ),
 
-    html.Div(id = "selection-info"),
 
     html.Div(
         id = "table",
@@ -79,7 +78,7 @@ app.layout = html.Div(
             html.Div(
                 className = "col s6", 
                 children = [
-                    html.Label('measures'),
+                    html.Label('Measures'),
                     dcc.Checklist(
                         options=[],
                         id='measures',
@@ -90,6 +89,8 @@ app.layout = html.Div(
             ),
         ]
     ),
+
+    html.H4(id = "selection-info"),
 
     html.Button(
         "Run query",
