@@ -59,7 +59,12 @@ app.layout = html.Div(
     ),
     
     html.Div(
-        id = "table")
+        id = "table"),
+
+    html.Button(
+        "Run query",
+        id = "run"
+    )
     
 ])
 
@@ -81,6 +86,8 @@ def get_dimensions_or_measures(dataset_uri, endpoint):
     dim_rows = dim_data[1]
     measures_data = query_measures(endpoint, dataset_uri)
     measures_rows = measures_data[1]
+
+    print(dim_rows)
 
     if dataset_uri == "":
         html.Div("")
