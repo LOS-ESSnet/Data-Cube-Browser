@@ -67,17 +67,17 @@ def test(input_value):
 
 @app.callback(
     Output(component_id = "table", component_property = "children"),
-    [Input(component_id = "endpoints-list", component_property = "value")],
+    [Input(component_id = "datasets-list", component_property = "value")],
     [State("endpoints-list", "value")]
 )
-def get_dimensions_or_measures(input_value, endpoint):
+def get_dimensions_or_measures(dataset_uri, endpoint):
     # TODO use Salim code for multiple selection
-    dim_data = query_dimensions(endpoint)
+    dim_data = query_dimensions(endpoint, dataset_uri)
     dim_rows = dim_data[1]
-    measures_data = query_measures(endpoint)
+    measures_data = query_measures(endpoint, dataset_uri)
     measures_rows = measures_data[1]
 
-    if input_value == "":
+    if dataset_uri == "":
         html.Div("")
     else:
         return html.Div(
