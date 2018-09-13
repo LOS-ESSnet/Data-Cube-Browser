@@ -3,11 +3,10 @@ PREFIX qb: <http://purl.org/linked-data/cube#>
 PREFIX mes: <http://id.insee.fr/meta/mesure/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
 
-SELECT ?label ?measure where {           
-	?s a qb:DataSet.
-	?s qb:structure ?dsd.
+SELECT ?label ?measure where {{           
+	<{dataset_uri}> qb:structure ?dsd.
 	?dsd qb:component/qb:measure ?measure .
 	?measure rdfs:label ?labelfr.
 
 	BIND(IF(BOUND(?labelfr), ?labelfr,"NO LABEL !!!"@fr) AS ?label)
-} LIMIT 100
+}}
