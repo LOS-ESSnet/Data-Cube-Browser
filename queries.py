@@ -53,7 +53,7 @@ def query_dimensions():
     PREFIX mes: <http://id.insee.fr/meta/mesure/>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
 
-    SELECT ?dim ?label where {           
+    SELECT ?label ?dim where {           
         ?s a qb:DataSet.
         ?s qb:structure ?dsd.
         ?dsd qb:component/qb:dimension ?dim.
@@ -80,7 +80,7 @@ def query_measures():
     PREFIX mes: <http://id.insee.fr/meta/mesure/>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
 
-    SELECT ?measure ?label where {           
+    SELECT ?label ?measure where {           
         ?s a qb:DataSet.
         ?s qb:structure ?dsd.
         ?dsd qb:component/qb:measure ?measure .
