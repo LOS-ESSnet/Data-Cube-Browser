@@ -7,7 +7,7 @@ import pandas as pd
 
 from queries import  query_datasets, query_dimensions, query_measures, get_endpoints_list
 from uiutilities import custom_checklists
-
+from queries2 import query_endpoint, load_queries, pretty_results
 
 # ----- Main layout
 app = dash.Dash()
