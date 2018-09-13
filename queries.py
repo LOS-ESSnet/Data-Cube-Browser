@@ -18,11 +18,12 @@ def query_datasets(target_url):
     PREFIX mes: <http://id.insee.fr/meta/mesure/>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
 
-    SELECT ?dataset_uri ?label  where {           
+    SELECT ?label ?comment ?dataset_uri  where {           
         ?dataset_uri a qb:DataSet .
         OPTIONAL{ 
-            ?dataset_uri rdfs:label ?label 
-            filter(langMatches(lang(?label),"fr"))
+            ?dataset_uri rdfs:label ?label .
+            #filter(langMatches(lang(?label),"fr"))
+            ?dataset_uri rdfs:comment ?comment.
             
         }
     }
@@ -35,9 +36,15 @@ def query_datasets(target_url):
 
     def label_modif(row):
         if "label" in row.keys():
-            return row["label"]["value"] 
+            if 'comment' in row.keys():
+                return row["label"]["value"]+ ' - '+ row["comment"]["value"]
+            else :
+                return row["label"]["value"]
         else:
-            return row["dataset_uri"]["value"]
+            if 'comment' in row.keys():
+                return row["dataset_uri"]["value"]+ ' - '+ row["comment"]["value"]
+            else:
+                return row["dataset_uri"]["value"]
 
     results=json['results']['bindings']
     keys=list(results[0].keys())
