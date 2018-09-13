@@ -152,11 +152,11 @@ def selection_info(dim_info, measures_info):
 @app.callback(
     Output(component_id = "run", component_property = "style"),
     [ 
-        Input(component_id = "dimensions", component_property = "values"),
+        Input(component_id = "dimensions", component_property = "values"), 
         Input(component_id = "measures", component_property = "values") 
     ]
 )
-def selection_info(dim_info, measures_info):
+def button_display(dim_info, measures_info):
     if len(dim_info) == 2 and len(measures_info) == 1:
         return {"display" : "block"}
     else:
