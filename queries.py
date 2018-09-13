@@ -40,7 +40,10 @@ def query_datasets(target_url):
         else:
             return row["dataset_uri"]["value"]
 
-    return [ {"label": label_modif(row), "value": label_modif(row)} for row in json["results"]["bindings"] ] 
+    results=json['results']['bindings']
+    keys=list(results[0].keys())
+    
+    return [{'label': result["dataset_uri"]['value'], 'value': label_modif(result)} for result in results]
 
 def queryToDataFrame(results):
     results_value=results['results']['bindings']
