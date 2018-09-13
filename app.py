@@ -63,14 +63,46 @@ def update_output_div(input_value):
 )
 def get_dimensions_or_measures(input_value):
     if (input_value == "dimensions"):
-        # TODO get dim dataframe from julie fn
+        # TODO use Salim code for multiple selection
         df = query_dimensions()
-        return html.Table(
-            # Header
-            [ html.Tr( [ html.Th(col) for col in df.columns ] ) ] +
-            # Body
-            [ html.Tr([ html.Td([ df.iloc[row][col] ]) for col in df.columns ]) for row in range(len(df)) ]
-            )
+        print(df)
+        return html.Div(    
+            className = "row", 
+            children = [
+                html.Div(
+                    className = "col s6", 
+                    children = [
+                        html.Label('Dimensions'),
+                        dcc.Checklist(
+                            options=[
+                                {'label': 'Dimension 1', 'value': 'd1'},
+                                {'label': 'Dimension 2', 'value': 'd2'},
+                                {'label': 'Dimension 3', 'value': 'd3'}
+                            ],
+                            id="dimensions",
+                            values=[],
+                            labelStyle={'display': 'block'}
+                        )
+                    ]
+                ),
+                html.Div(
+                    className = "col s6", 
+                    children = [
+                        html.Label('Measures'),
+                        dcc.Checklist(
+                            options=[
+                                {'label': 'Measures 1', 'value': 'm1'},
+                                {'label': 'Measures 2', 'value': 'm2'},
+                                {'label': 'Measures 3', 'value': 'm3'}
+                            ],
+                            id="measures",
+                            values=[],
+                            labelStyle={'display': 'block'}
+                        )
+                    ]
+                )
+            ]
+        )
     elif (input_value == "measures"):
         return html.Table([html.Tr([html.Td("test")]) for row in range(10)])
     else:
