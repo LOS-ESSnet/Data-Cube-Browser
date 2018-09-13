@@ -2,10 +2,16 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 import pandas as pd
 
 # TODO cache ?
-#URL = "http://hackathon2018.ontotext.com/repositories/plosh"
-URL = "https://statistics.gov.scot/sparql"
+PLOSH_URL = "http://hackathon2018.ontotext.com/repositories/plosh"
+SCOTT_URL = "https://statistics.gov.scot/sparql"
 
-def query_datasets():
+def get_endpoints_list():
+    return [
+        {"label": "PLOSH", "value": PLOSH_URL},
+        {"label": "Scotland machin", "value": SCOTT_URL}
+        ]
+
+def query_datasets(target_url):
 
     QUERY = """
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -23,7 +29,7 @@ def query_datasets():
     }
     """
 
-    wrapper = SPARQLWrapper(URL)
+    wrapper = SPARQLWrapper(target_url)
     wrapper.setQuery(QUERY)
     wrapper.setReturnFormat(JSON)
     json = wrapper.query().convert()
@@ -42,9 +48,9 @@ def queryToDataFrame(results):
     table.columns=list(results_value[0].keys())
     return table
 
-def query_dimensions():
+def query_dimensions(target_url):
     
-    sparql = SPARQLWrapper(URL)
+    sparql = SPARQLWrapper(target_url)
     sparql.setReturnFormat(JSON)
     
     query = """
@@ -71,9 +77,9 @@ def query_dimensions():
     
     return [keys,[{'label': result[keys[0]]['value'],'value': result[keys[1]]['value']} for result in results]]
     
-def query_measures():
+def query_measures(target_url):
     
-    sparql = SPARQLWrapper(URL)
+    sparql = SPARQLWrapper(target_url)
     sparql.setReturnFormat(JSON)
     
     query = """
