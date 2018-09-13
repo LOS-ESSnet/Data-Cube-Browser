@@ -12,7 +12,6 @@ def get_endpoints_list():
         ]
 
 def query_datasets(target_url):
-
     QUERY = """
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX qb: <http://purl.org/linked-data/cube#>
@@ -77,7 +76,7 @@ def query_dimensions(target_url, dataset_uri):
     results=results["results"]["bindings"]
     keys=list(results[0].keys())
     
-    return [keys,[{'label': result[keys[0]]['value'],'value': result[keys[1]]['value']} for result in results]]
+    return [keys,[{'label': result[keys[1]]['value'],'value': result[keys[0]]['value']} for result in results]]
     
 def query_measures(target_url, dataset_uri):
     
@@ -104,4 +103,4 @@ def query_measures(target_url, dataset_uri):
     results=results["results"]["bindings"]
     keys=list(results[0].keys())
 
-    return [keys,[{'label': result[keys[0]]['value'],'value': result[keys[1]]['value']} for result in results]]
+    return [keys,[{'label': result[keys[1]]['value'],'value': result[keys[0]]['value']} for result in results]]
