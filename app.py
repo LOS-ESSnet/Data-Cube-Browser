@@ -1,12 +1,12 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 
 import pandas as pd
 
 from queries import  query_datasets, query_dimensions, query_measures
-
+from uiutilities import custom_checklists
 
 
 # ----- Main layout
@@ -25,6 +25,20 @@ app.layout = html.Div(
     html.H1("T E S S E R A C T"),
 
     html.H2("Exploring DataCubes"),
+
+    html.Div(
+        children = [
+            html.H3("Select an endpoint"),
+            dcc.Dropdown(
+                id = "endpoint-list",
+                options = [
+                    {"label": "PLOSH", "value": "P"},
+                    {"label": "Scottish", "value": "S"}
+                ],
+                value = ""
+            ),
+        ]
+    ),
 
     html.Div(
         children = [
@@ -47,10 +61,11 @@ app.layout = html.Div(
 # ----- Callbacks
 @app.callback(
     Output(component_id='target', component_property='children'),
-    [Input(component_id='domain-list', component_property='value')]
+    [Input(component_id='domain-list', component_property='value')],
+    [State("endpoint-list", "value")]
 )
-def update_output_div(input_value):
-    return f"You selected the {input_value} domain"
+def update_output_div(input_value, endpoint):
+    return f"You selected the {input_value} domain from the {endpoint} domain"
 
 @app.callback(
     Output(component_id = "table", component_property = "children"),
@@ -61,7 +76,7 @@ def get_dimensions_or_measures(input_value):
     dim_data = query_dimensions()
     dim_rows = dim_data[1]
     measures_data = query_measures()
-    measures_row = measures_data[1]
+    measures_rows = measures_data[1]
 
     if input_value == "":
         html.Div("")
@@ -70,30 +85,8 @@ def get_dimensions_or_measures(input_value):
             className = "row", 
             children = [
                 html.H3("Dimensions and measures selection"),
-                html.Div(
-                    className = "col s6", 
-                    children = [
-                        html.Label('Dimensions'),
-                        dcc.Checklist(
-                            options=dim_rows,
-                            id="dimensions",
-                            values=[],
-                            labelStyle={'display': 'block'}
-                        )
-                    ]
-                ),
-                html.Div(
-                    className = "col s6", 
-                    children = [
-                        html.Label('Measures'),
-                        dcc.Checklist(
-                            options=measures_row,
-                            id="measures",
-                            values=[],
-                            labelStyle={'display': 'block'}
-                        )
-                    ]
-                )
+                custom_checklists("Dimensions", dim_rows),
+                custom_checklists("Measures", measures_rows)
             ]
         )
 
