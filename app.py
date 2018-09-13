@@ -10,6 +10,12 @@ from uiutilities import custom_checklists
 from queries2 import query_endpoint, load_queries, pretty_results
 
 # ----- Main layout
+#load queries with queries2
+queries={}
+queries_dir="sparql/"
+for queries in load_queries(queries_dir):
+    queries
+	
 app = dash.Dash()
 server = app.server
 
