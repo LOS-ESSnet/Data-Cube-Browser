@@ -53,21 +53,20 @@ def query_dimensions(target_url):
     sparql = SPARQLWrapper(target_url)
     sparql.setReturnFormat(JSON)
     
-    query = """
+    query = f"""
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX qb: <http://purl.org/linked-data/cube#>
     PREFIX mes: <http://id.insee.fr/meta/mesure/>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
 
-    SELECT ?label ?dim where {           
-        ?s a qb:DataSet.
-        ?s qb:structure ?dsd.
+    SELECT ?label ?dim where {{           
+        <{target_url}> qb:structure ?dsd.
         ?dsd qb:component/qb:dimension ?dim.
         ?dim rdfs:label ?labelfr.
 
-        filter(langMatches(lang(?labelfr),"en"))
+        #filter(langMatches(lang(?labelfr),"en"))
         BIND(IF(BOUND(?labelfr), ?labelfr,?dim) AS ?label)
-    } 
+    }} 
     """
 
     sparql.setQuery(query)
@@ -88,14 +87,13 @@ def query_measures(target_url):
     PREFIX mes: <http://id.insee.fr/meta/mesure/>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
 
-    SELECT ?label ?measure where {           
-        ?s a qb:DataSet.
-        ?s qb:structure ?dsd.
+    SELECT ?label ?measure where {{           
+        <{target_url}> qb:structure ?dsd.
         ?dsd qb:component/qb:measure ?measure .
         ?measure rdfs:label ?labelfr.
 
         BIND(IF(BOUND(?labelfr), ?labelfr,"NO LABEL !!!"@fr) AS ?label)
-    } LIMIT 100
+    }}
     """
 
     sparql.setQuery(query)
