@@ -69,7 +69,7 @@ def query_dimensions(target_url, dataset_uri):
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
 
    SELECT DISTINCT ?concept ?dim where {{           
-        <{target_url}> qb:structure ?dsd.
+        <{dataset_uri}> qb:structure ?dsd.
         ?dsd qb:component/qb:dimension ?dim.
         ?dim rdfs:label ?labelfr.
         
@@ -97,13 +97,15 @@ def query_measures(target_url, dataset_uri):
     PREFIX qb: <http://purl.org/linked-data/cube#>
     PREFIX mes: <http://id.insee.fr/meta/mesure/>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 
     SELECT ?label ?measure where {{           
         <{dataset_uri}> qb:structure ?dsd.
         ?dsd qb:component/qb:measure ?measure .
         ?measure rdfs:label ?labelfr.
+        OPTIONAL{{filter(langMatches(lang(?labelfr),"en"))}}
 
-        BIND(IF(BOUND(?labelfr), ?labelfr,"NO LABEL !!!"@fr) AS ?label)
+        #BIND(IF(BOUND(?labelfr), ?labelfr,"NO LABEL !!!"@fr) AS ?label)
     }}
     """
 
@@ -112,4 +114,10 @@ def query_measures(target_url, dataset_uri):
     results=results["results"]["bindings"]
     keys=list(results[0].keys())
 
-    return [keys,[{'label': result[keys[1]]['value'],'value': result[keys[0]]['value']} for result in results]]
+    def label_modif(row):
+        if "label" in row.keys():
+            return row["label"]["value"]
+        else:
+            return row["measure"]["value"]
+
+    return [keys,[{'label': label_modif(result),'value': result["measure"]['value']} for result in results]]
