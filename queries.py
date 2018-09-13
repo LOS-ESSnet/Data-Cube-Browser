@@ -2,9 +2,10 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 import pandas as pd
 
 # TODO cache ?
+#URL = "http://hackathon2018.ontotext.com/repositories/plosh"
+URL = "https://statistics.gov.scot/sparql"
 
 def query_datasets():
-    URL = "http://hackathon2018.ontotext.com/repositories/plosh"
 
     QUERY = """
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -43,7 +44,6 @@ def queryToDataFrame(results):
 
 def query_dimensions():
     
-    URL="http://hackathon2018.ontotext.com/repositories/plosh"
     sparql = SPARQLWrapper(URL)
     sparql.setReturnFormat(JSON)
     
@@ -59,7 +59,7 @@ def query_dimensions():
         ?dsd qb:component/qb:dimension ?dim.
         ?dim rdfs:label ?labelfr
 
-        filter(langMatches(lang(?labelfr),"fr"))
+        filter(langMatches(lang(?labelfr),"en"))
         BIND(IF(BOUND(?labelfr), ?labelfr,?dim) AS ?label)
     } 
     """
@@ -71,7 +71,7 @@ def query_dimensions():
     
 def query_measures():
     
-    sparql = SPARQLWrapper("http://hackathon2018.ontotext.com/repositories/plosh")
+    sparql = SPARQLWrapper(URL)
     sparql.setReturnFormat(JSON)
     
     query = """

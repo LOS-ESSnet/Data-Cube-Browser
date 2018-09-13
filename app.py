@@ -7,10 +7,20 @@ import pandas as pd
 
 from queries import  query_datasets, query_dimensions, query_measures
 
+
+
+# ----- Main layout
 app = dash.Dash()
 server = app.server
 
-app.layout = html.Div([
+# ----- sTYLING
+app.css.append_css({
+    "external_url": "https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    })
+
+app.layout = html.Div(
+    className="container",
+    children = [
 
     html.H1("T E S S E R A C T"),
 
@@ -18,7 +28,7 @@ app.layout = html.Div([
 
     dcc.Dropdown(
         id = "domain-list",
-        options = [{"label": "NOSERVER", "value": "NOSERVER"}],
+        options = query_datasets(),
         value = "tourism"
     ),
 
