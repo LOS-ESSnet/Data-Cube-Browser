@@ -1,0 +1,13 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX mes: <http://id.insee.fr/meta/mesure/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+
+SELECT ?label ?dim where {{           
+	<{dataset_uri}> qb:structure ?dsd.
+	?dsd qb:component/qb:dimension ?dim.
+	?dim rdfs:label ?labelfr.
+
+	#filter(langMatches(lang(?labelfr),"en"))
+	BIND(IF(BOUND(?labelfr), ?labelfr,?dim) AS ?label)
+}} 
