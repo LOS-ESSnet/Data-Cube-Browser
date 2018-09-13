@@ -14,9 +14,9 @@ app = dash.Dash()
 server = app.server
 
 # ----- sTYLING
-app.css.append_css({
+""" app.css.append_css({
     "external_url": "https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
-    })
+    }) """
 
 app.layout = html.Div(
     className="container",
@@ -26,26 +26,21 @@ app.layout = html.Div(
 
     html.H2("Exploring DataCubes"),
 
-    dcc.Dropdown(
-        id = "domain-list",
-        options = query_datasets(),
-        value = "tourism"
+    html.Div(
+        children = [
+            html.H3("DataCube selection"),
+            dcc.Dropdown(
+                id = "domain-list",
+                options = query_datasets(),
+                value = ""
+            ),
+
+            html.Div(id = "target")
+        ]
     ),
-
-    html.Div(id = "target"),
-
-    html.H2("I want to take a look at :"), 
-
-    dcc.RadioItems(
-        id = "select-dim-or-meas",
-        options=[
-            {'label': 'Dimensions', 'value': 'dimensions'},
-            {'label': 'Measures', 'value': 'measures'}
-        ],
-        value=''
-        ),
     
-    html.Div(id = "table")
+    html.Div(
+        id = "table")
     
 ])
 
@@ -59,26 +54,28 @@ def update_output_div(input_value):
 
 @app.callback(
     Output(component_id = "table", component_property = "children"),
-    [Input(component_id = "select-dim-or-meas", component_property = "value")]
+    [Input(component_id = "domain-list", component_property = "value")]
 )
 def get_dimensions_or_measures(input_value):
-    if (input_value == "dimensions"):
-        # TODO use Salim code for multiple selection
-        df = query_dimensions()
-        print(df)
-        return html.Div(    
+    # TODO use Salim code for multiple selection
+    dim_data = query_dimensions()
+    dim_rows = dim_data[1]
+    measures_data = query_measures()
+    measures_row = measures_data[1]
+
+    if input_value == "":
+        html.Div("")
+    else:
+        return html.Div(
             className = "row", 
             children = [
+                html.H3("Dimensions and measures selection"),
                 html.Div(
                     className = "col s6", 
                     children = [
                         html.Label('Dimensions'),
                         dcc.Checklist(
-                            options=[
-                                {'label': 'Dimension 1', 'value': 'd1'},
-                                {'label': 'Dimension 2', 'value': 'd2'},
-                                {'label': 'Dimension 3', 'value': 'd3'}
-                            ],
+                            options=dim_rows,
                             id="dimensions",
                             values=[],
                             labelStyle={'display': 'block'}
@@ -90,11 +87,7 @@ def get_dimensions_or_measures(input_value):
                     children = [
                         html.Label('Measures'),
                         dcc.Checklist(
-                            options=[
-                                {'label': 'Measures 1', 'value': 'm1'},
-                                {'label': 'Measures 2', 'value': 'm2'},
-                                {'label': 'Measures 3', 'value': 'm3'}
-                            ],
+                            options=measures_row,
                             id="measures",
                             values=[],
                             labelStyle={'display': 'block'}
@@ -103,11 +96,6 @@ def get_dimensions_or_measures(input_value):
                 )
             ]
         )
-    elif (input_value == "measures"):
-        return html.Table([html.Tr([html.Td("test")]) for row in range(10)])
-    else:
-        return html.Div("No dimensions or measures chosen")
-
 
 if __name__ == '__main__':
     app.run_server()
