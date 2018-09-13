@@ -92,33 +92,33 @@ def query_measures(target_url, dataset_uri):
     sparql = SPARQLWrapper(target_url)
     sparql.setReturnFormat(JSON)
     
-    query = f"""
+    query = """
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX qb: <http://purl.org/linked-data/cube#>
     PREFIX mes: <http://id.insee.fr/meta/mesure/>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
-    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 
-    SELECT ?label ?measure where {{           
-        <{dataset_uri}> qb:structure ?dsd.
+    SELECT distinct ?measure ?label where {  
+        #?s a qb:DataSet.
+        <http://data.insee.fr/dataset/LFS> qb:structure ?dsd.
         ?dsd qb:component/qb:measure ?measure .
-        ?measure rdfs:label ?labelfr.
-        OPTIONAL{{
-            filter(langMatches(lang(?labelfr),"en"))}}
-
-        #BIND(IF(BOUND(?labelfr), ?labelfr,"NO LABEL !!!"@fr) AS ?label)
-    }}
+        ?measure rdfs:label ?labelen.         
+        BIND(IF(BOUND(?labelen), ?labelen,"NO LABEL !!!"@en) AS ?label)
+        OPTIONAL{filter(langMatches(lang(?labelen),"en")).}
+    }
     """
 
     sparql.setQuery(query)
     results = sparql.query().convert()
     results=results["results"]["bindings"]
-    keys=list(results[0].keys())
-
+    
     def label_modif(row):
-        if "label" in row.keys():
+        if row["label"]["value"]!="":
             return row["label"]["value"]
         else:
             return row["measure"]["value"]
 
-    return [keys,[{'label': label_modif(result),'value': result["measure"]['value']} for result in results]]
+    #results=results["results"]["bindings"]
+    #keys=list(results[0].keys())
+
+    return [{'label': label_modif(result), 'value': result['measure']['value']} for result in results]
