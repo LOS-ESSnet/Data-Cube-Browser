@@ -57,13 +57,44 @@ app.layout = html.Div(
             html.Div(id = "target")
         ]
     ),
-    
+
+    html.Div(id = "selection-info"),
+
     html.Div(
-        id = "table"),
+        id = "table",
+        children = [
+            html.H3("Dimensions and measures selection"),
+            html.Div(
+                className = "col s6", 
+                children = [
+                    html.Label('Dimensions'),
+                    dcc.Checklist(
+                        options=[],
+                        id='dimensions',
+                        values=[],
+                        labelStyle={'display': 'block'}
+                    )
+                ]
+            ),
+            html.Div(
+                className = "col s6", 
+                children = [
+                    html.Label('measures'),
+                    dcc.Checklist(
+                        options=[],
+                        id='measures',
+                        values=[],
+                        labelStyle={'display': 'block'}
+                    )
+                ]
+            ),
+        ]
+    ),
 
     html.Button(
         "Run query",
-        id = "run"
+        id = "run",
+        style = {"display" : "none"}
     )
     
 ])
@@ -77,29 +108,59 @@ def test(input_value):
     return query_datasets(input_value)
 
 @app.callback(
-    Output(component_id = "table", component_property = "children"),
+    Output(component_id = "dimensions", component_property = "options"),
     [Input(component_id = "datasets-list", component_property = "value")],
     [State("endpoints-list", "value")]
 )
-def get_dimensions_or_measures(dataset_uri, endpoint):
+def get_dimensions(dataset_uri, endpoint):
     dim_data = query_dimensions(endpoint, dataset_uri)
     dim_rows = dim_data[1]
+
+    if dataset_uri == "":
+        return []
+    else:
+        return dim_rows
+
+@app.callback(
+    Output(component_id = "measures", component_property = "options"),
+    [Input(component_id = "datasets-list", component_property = "value")],
+    [State("endpoints-list", "value")]
+)
+def get_measures(dataset_uri, endpoint):
     measures_data = query_measures(endpoint, dataset_uri)
     measures_rows = measures_data[1]
 
-    print(dim_rows)
-
     if dataset_uri == "":
-        html.Div("")
+        return []
     else:
-        return html.Div(
-            className = "row", 
-            children = [
-                html.H3("Dimensions and measures selection"),
-                custom_checklists("Dimensions", dim_rows),
-                custom_checklists("Measures", measures_rows)
-            ]
-        )
+        return measures_rows
+
+@app.callback(
+    Output(component_id = "selection-info", component_property = "children"),
+    [ 
+        Input(component_id = "dimensions", component_property = "values"),
+        Input(component_id = "measures", component_property = "values") 
+    ]
+)
+def selection_info(dim_info, measures_info):
+    if len(dim_info) == 2 and len(measures_info) == 1:
+        return html.P("You can execute your query")
+    else:
+        return html.P("You must select 2 dimensions and 1 measure")
+
+@app.callback(
+    Output(component_id = "run", component_property = "style"),
+    [ 
+        Input(component_id = "dimensions", component_property = "values"),
+        Input(component_id = "measures", component_property = "values") 
+    ]
+)
+def selection_info(dim_info, measures_info):
+    if len(dim_info) == 2 and len(measures_info) == 1:
+        return {"display" : "block"}
+    else:
+        return {"display": "none"}
+
 
 if __name__ == '__main__':
     app.run_server()
