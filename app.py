@@ -8,6 +8,7 @@ import pandas as pd
 from queries import  query_datasets, query_dimensions, query_measures
 
 app = dash.Dash()
+server = app.server
 
 app.layout = html.Div([
 
@@ -17,7 +18,7 @@ app.layout = html.Div([
 
     dcc.Dropdown(
         id = "domain-list",
-        options = query_datasets(),
+        options = [{"label": "NOSERVER", "value": "NOSERVER"}],
         value = "tourism"
     ),
 
