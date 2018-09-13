@@ -1,5 +1,6 @@
 from SPARQLWrapper import SPARQLWrapper, JSON
 import pandas as pd
+import os
 
 def query_endpoint(url,query):
     endpoint = SPARQLWrapper(url)
