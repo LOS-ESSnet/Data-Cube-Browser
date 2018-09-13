@@ -5,7 +5,7 @@ from dash.dependencies import Input, Output, State
 
 import pandas as pd
 
-from queries import  query_datasets, query_dimensions, query_measures
+from queries import  query_datasets, query_dimensions, query_measures, get_endpoints_list
 from uiutilities import custom_checklists
 
 
@@ -30,25 +30,24 @@ app.layout = html.Div(
         children = [
             html.H3("Select an endpoint"),
             dcc.Dropdown(
-                id = "endpoint-list",
-                options = [
-                    {"label": "PLOSH", "value": "P"},
-                    {"label": "Scottish", "value": "S"}
-                ],
+                id = "endpoints-list",
+                options = get_endpoints_list(),
                 value = ""
             ),
         ]
     ),
 
+    html.Span(),
+
     html.Div(
         children = [
             html.H3("DataCube selection"),
-            dcc.Dropdown(
-                id = "domain-list",
-                options = query_datasets(),
+            html.Div(id = "blip",
+            children = [dcc.Dropdown(
+                id = "datasets-list",
+                options = [],
                 value = ""
-            ),
-
+            )]),
             html.Div(id = "target")
         ]
     ),
@@ -60,22 +59,22 @@ app.layout = html.Div(
 
 # ----- Callbacks
 @app.callback(
-    Output(component_id='target', component_property='children'),
-    [Input(component_id='domain-list', component_property='value')],
-    [State("endpoint-list", "value")]
+    Output(component_id = "datasets-list", component_property = "options"),
+    [ Input(component_id = "endpoints-list", component_property = "value") ]
 )
-def update_output_div(input_value, endpoint):
-    return f"You selected the {input_value} domain from the {endpoint} domain"
+def test(input_value):
+    return query_datasets(input_value)
 
 @app.callback(
     Output(component_id = "table", component_property = "children"),
-    [Input(component_id = "domain-list", component_property = "value")]
+    [Input(component_id = "endpoints-list", component_property = "value")],
+    [State("endpoints-list", "value")]
 )
-def get_dimensions_or_measures(input_value):
+def get_dimensions_or_measures(input_value, endpoint):
     # TODO use Salim code for multiple selection
-    dim_data = query_dimensions()
+    dim_data = query_dimensions(endpoint)
     dim_rows = dim_data[1]
-    measures_data = query_measures()
+    measures_data = query_measures(endpoint)
     measures_rows = measures_data[1]
 
     if input_value == "":
