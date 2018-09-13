@@ -129,12 +129,14 @@ def get_dimensions(dataset_uri, endpoint):
 )
 def get_measures(dataset_uri, endpoint):
     measures_data = query_measures(endpoint, dataset_uri)
-    measures_rows = measures_data[1]
+
+    for o in measures_data:
+        print(o)
 
     if dataset_uri == "":
         return []
     else:
-        return measures_rows
+        return measures_data
 
 @app.callback(
     Output(component_id = "selection-info", component_property = "children"),
