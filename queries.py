@@ -18,11 +18,12 @@ def query_datasets(target_url):
     PREFIX mes: <http://id.insee.fr/meta/mesure/>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
 
-    SELECT ?dataset_uri ?label  where {           
+    SELECT ?label ?comment ?dataset_uri  where {           
         ?dataset_uri a qb:DataSet .
         OPTIONAL{ 
-            ?dataset_uri rdfs:label ?label 
-            filter(langMatches(lang(?label),"fr"))
+            ?dataset_uri rdfs:label ?label .
+            #filter(langMatches(lang(?label),"fr"))
+            ?dataset_uri rdfs:comment ?comment.
             
         }
     }
@@ -35,9 +36,15 @@ def query_datasets(target_url):
 
     def label_modif(row):
         if "label" in row.keys():
-            return row["label"]["value"] 
+            if 'comment' in row.keys():
+                return row["label"]["value"]+ ' - '+ row["comment"]["value"]
+            else :
+                return row["label"]["value"]
         else:
-            return row["dataset_uri"]["value"]
+            if 'comment' in row.keys():
+                return row["dataset_uri"]["value"]+ ' - '+ row["comment"]["value"]
+            else:
+                return row["dataset_uri"]["value"]
 
     results=json['results']['bindings']
     keys=list(results[0].keys())
@@ -61,13 +68,15 @@ def query_dimensions(target_url, dataset_uri):
     PREFIX mes: <http://id.insee.fr/meta/mesure/>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
 
-    SELECT ?label ?dim where {{           
-        <{dataset_uri}> qb:structure ?dsd.
+   SELECT DISTINCT ?concept ?dim where {{           
+        <{target_url}> qb:structure ?dsd.
         ?dsd qb:component/qb:dimension ?dim.
         ?dim rdfs:label ?labelfr.
+        
+        ?dim qb:concept ?o.
+        ?o rdfs:label ?concept .
 
-        #filter(langMatches(lang(?labelfr),"en"))
-        BIND(IF(BOUND(?labelfr), ?labelfr,?dim) AS ?label)
+        filter(langMatches(lang(?concept),"fr"))
     }} 
     """
 
@@ -76,7 +85,7 @@ def query_dimensions(target_url, dataset_uri):
     results=results["results"]["bindings"]
     keys=list(results[0].keys())
     
-    return [keys,[{'label': result[keys[1]]['value'],'value': result[keys[0]]['value']} for result in results]]
+    return [keys,[{'label': result[keys[0]]['value'],'value': result[keys[1]]['value']} for result in results]]
     
 def query_measures(target_url, dataset_uri):
     
