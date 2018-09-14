@@ -92,11 +92,13 @@ app.layout = html.Div(
 
     html.H4(id = "selection-info"),
 
-    html.Button(
-        "Run query",
+    dcc.Input(
         id = "run",
-        style = {"display" : "none"}
-    )
+        style = {"display" : "none"},
+        type = "button"
+    ),
+
+    html.Div(id = "query-results")
     
 ])
 
@@ -164,6 +166,15 @@ def button_display(dim_info, measures_info):
     else:
         return {"display": "none"}
 
+@app.callback(
+    Output(component_id = "query-results", component_property = "children"),
+    [ Input(component_id = "run", component_property = "value") ],
+    [ State("dimensions", "values"), State("measures", "values") ]
+)
+def execute_query(input_value, dim_info, measures_info):
+    print(dim_info)
+    print(measures_info)
+    return html.P("SOMETHING HAPPENS")
 
 if __name__ == '__main__':
     app.run_server()
