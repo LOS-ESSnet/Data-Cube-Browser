@@ -49,7 +49,7 @@ def query_datasets(target_url):
     results=json['results']['bindings']
     keys=list(results[0].keys())
     
-    return [{'label': label_modif(result), 'value': result["dataset_uri"]['value']} for result in results]
+    return list({v['value']:v for v in [{'label': label_modif(result), 'value': result["dataset_uri"]['value']} for result in results]}.values())
 
 def queryToDataFrame(results):
     results_value=results['results']['bindings']
@@ -76,7 +76,7 @@ def query_dimensions(target_url, dataset_uri):
         ?dim qb:concept ?o.
         ?o rdfs:label ?concept .
 
-        filter(langMatches(lang(?concept),"fr"))
+        filter(langMatches(lang(?concept),"en"))
     }} 
     """
 
@@ -102,6 +102,7 @@ def query_measures(target_url, dataset_uri):
         #?s a qb:DataSet.
         <http://data.insee.fr/dataset/LFS> qb:structure ?dsd.
         ?dsd qb:component/qb:measure ?measure .
+       
         ?measure rdfs:label ?labelen.         
         BIND(IF(BOUND(?labelen), ?labelen,"NO LABEL !!!"@en) AS ?label)
         OPTIONAL{filter(langMatches(lang(?labelen),"en")).}
@@ -118,7 +119,61 @@ def query_measures(target_url, dataset_uri):
         else:
             return row["measure"]["value"]
 
-    #results=results["results"]["bindings"]
-    #keys=list(results[0].keys())
+    def index(row):
+        if row["label"]["value"]!="":
+            return 1
+        else:
+            return 2
 
-    return [{'label': label_modif(result), 'value': result['measure']['value']} for result in results]
+    df=pd.DataFrame([{'label': label_modif(result), 'value': result['measure']['value'], 'index':index(result)} 
+                     for result in results]).sort_values(['value','index'])
+    df=df.groupby('value').first().reset_index()[['value','label']]
+    
+    return [{'label': result[1], 'value': result[0]} for result in df.to_dict('split')['data']]
+
+def queryToDataFrame(results):
+    results_value=results['results']['bindings']
+    table=pd.DataFrame([[x[name]['value'] for x in results_value]  for name in list(results_value[0].keys())]).T
+    table.columns=list(results_value[0].keys())
+    return table
+
+def query_data(target_url, dataset_uri, dim_info, measures_info):
+    
+    sparql = SPARQLWrapper(target_url)
+    sparql.setReturnFormat(JSON)
+    
+    dimension1=dim_info[0]
+    dimension1=dim_info[1]
+    
+    query = f"""
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX qb: <http://purl.org/linked-data/cube#>
+    PREFIX mes: <http://id.insee.fr/meta/mesure/>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+ 
+    SELECT DISTINCT ?concept1 ?concept2 (SUM(?value) as ?value) where {{           
+        <{dataset_uri}> qb:structure ?dsd.
+        ?dsd qb:component/qb:dimension  <{dimension1}> .
+        ?dsd qb:component/qb:dimension <{dimension2}>  .
+        ?dsd qb:component/qb:measure <{measures_info}>  .
+        
+        ?obs <{dimension1}> ?dim1 .
+        ?obs <{dimension2}> ?dim2 .
+        ?obs <{measures_info}> ?value .
+       
+        ?dim1 skos:notation ?concept1 .
+        ?dim2 skos:notation ?concept2 .
+  
+    }}
+    GROUP BY ?concept1 ?concept2
+    """
+    
+    sparql.setQuery(query)
+    results = sparql.query().convert()
+    
+    df=queryToDataFrame(results)
+
+    return df.pivot(index='concept1', columns='concept2', values='value').reset_index()
+
+
