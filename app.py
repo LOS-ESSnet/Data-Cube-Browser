@@ -1,11 +1,13 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_table_experiments as dt
+
 from dash.dependencies import Input, Output, State
 
 import pandas as pd
 
-from queries import  query_datasets, query_dimensions, query_measures, get_endpoints_list
+from queries import  query_datasets, query_dimensions, query_measures, get_endpoints_list, query_data
 from uiutilities import custom_checklists
 from queries2 import query_endpoint, load_queries, pretty_results
 
@@ -92,10 +94,11 @@ app.layout = html.Div(
 
     html.H4(id = "selection-info"),
 
-    dcc.Input(
+    html.Button(
         id = "run",
         style = {"display" : "none"},
-        type = "button"
+        children = "RUN",
+        n_clicks = 0
     ),
 
     html.Div(id = "query-results")
@@ -168,13 +171,22 @@ def button_display(dim_info, measures_info):
 
 @app.callback(
     Output(component_id = "query-results", component_property = "children"),
-    [ Input(component_id = "run", component_property = "value") ],
-    [ State("dimensions", "values"), State("measures", "values") ]
+    [ Input(component_id = "run", component_property = "n_clicks") ],
+    [ State("endpoints-list", "value"), State("datasets-list", "value"), State("dimensions", "values"), State("measures", "values") ]
 )
-def execute_query(input_value, dim_info, measures_info):
+def execute_query(input_value, endpoint, dataset_uri, dim_info, measures_info):
     print(dim_info)
     print(measures_info)
-    return html.P("SOMETHING HAPPENS")
+    df = query_data( endpoint, dataset_uri, dim_info[0], dim_info[1], measures_info[0] )
+    
+    return html.Table(
+        #Header
+        [ html.Tr([html.Th (col) for col in df.columns])]+
+        #Body
+        [html.Tr([
+            html.Td(df.iloc[i][col]) for col in df.columns
+            ]) for i in range(len(df))]
+    )
 
 if __name__ == '__main__':
     app.run_server()

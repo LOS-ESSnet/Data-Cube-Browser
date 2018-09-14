@@ -92,21 +92,21 @@ def query_measures(target_url, dataset_uri):
     sparql = SPARQLWrapper(target_url)
     sparql.setReturnFormat(JSON)
     
-    query = """
+    query = f"""
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX qb: <http://purl.org/linked-data/cube#>
     PREFIX mes: <http://id.insee.fr/meta/mesure/>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
 
-    SELECT distinct ?measure ?label where {  
+    SELECT distinct ?measure ?label where {{ 
         #?s a qb:DataSet.
-        <http://data.insee.fr/dataset/LFS> qb:structure ?dsd.
+        <{dataset_uri}> qb:structure ?dsd.
         ?dsd qb:component/qb:measure ?measure .
        
         ?measure rdfs:label ?labelen.         
         BIND(IF(BOUND(?labelen), ?labelen,"NO LABEL !!!"@en) AS ?label)
-        OPTIONAL{filter(langMatches(lang(?labelen),"en")).}
-    }
+        OPTIONAL{{filter(langMatches(lang(?labelen),"en")).}}
+    }}
     """
 
     sparql.setQuery(query)
@@ -131,19 +131,10 @@ def query_measures(target_url, dataset_uri):
     
     return [{'label': result[1], 'value': result[0]} for result in df.to_dict('split')['data']]
 
-def queryToDataFrame(results):
-    results_value=results['results']['bindings']
-    table=pd.DataFrame([[x[name]['value'] for x in results_value]  for name in list(results_value[0].keys())]).T
-    table.columns=list(results_value[0].keys())
-    return table
-
-def query_data(target_url, dataset_uri, dim_info, measures_info):
+def query_data(target_url, dataset_uri, dimension1, dimension2, measures_info):
     
     sparql = SPARQLWrapper(target_url)
     sparql.setReturnFormat(JSON)
-    
-    dimension1=dim_info[0]
-    dimension1=dim_info[1]
     
     query = f"""
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
