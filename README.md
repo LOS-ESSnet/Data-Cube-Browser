@@ -9,11 +9,11 @@ First:
 * graphical interface
 * webapp, browser (not something that you should download)
 
-Thematic search ?
+Thematic search?
 
 Index of Dataset / Catalog
 
-Compare some datasets, are there interesting to compare ?
+Compare some datasets, are there interesting to compare?
 
 Information needed:
 * measures
@@ -23,7 +23,7 @@ Information needed:
 Access by:
 * measure or dimension
 * item of a codelist
-* linked datasets ?
+* linked datasets?
 
 Main purpose of the user:
 * See how the datasets look like to be able to define the usefull comparaisons he can make without knowing sparql
