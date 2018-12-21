@@ -26,16 +26,16 @@ server = app.server
     }) """
 
 app.layout = html.Div(
-    className="container",
+    className = "container",
     children = [
 
     html.H1("T E S S E R A C T"),
 
-    html.H2("Exploring DataCubes"),
+    html.H2("Exploring data cubes"),
 
     html.Div(
         children = [
-            html.H3("Select an endpoint"),
+            html.H3("Please select a SPARQL endpoint"),
             dcc.Dropdown(
                 id = "endpoints-list",
                 options = get_endpoints_list(),
@@ -48,7 +48,7 @@ app.layout = html.Div(
 
     html.Div(
         children = [
-            html.H3("DataCube selection"),
+            html.H3("Data cube selection"),
             html.Div(id = "blip",
             children = [dcc.Dropdown(
                 id = "datasets-list",
@@ -58,7 +58,6 @@ app.layout = html.Div(
             html.Div(id = "target")
         ]
     ),
-
 
     html.Div(
         id = "table",

@@ -2,13 +2,13 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 import pandas as pd
 
 # TODO cache ?
-PLOSH_URL = "http://hackathon2018.ontotext.com/repositories/plosh"
+PLOSH_URL = "http://graphdb.dev.innovation.insee.eu/repositories/plosh"
 SCOTT_URL = "https://statistics.gov.scot/sparql"
 
 def get_endpoints_list():
     return [
-        {"label": "PLOSH", "value": PLOSH_URL},
-        {"label": "Scotland machin", "value": SCOTT_URL}
+        {"label": "PLOSH Data sets", "value": PLOSH_URL},
+        {"label": "Scotland's official statistics", "value": SCOTT_URL}
         ]
 
 def query_datasets(target_url):
@@ -104,7 +104,7 @@ def query_measures(target_url, dataset_uri):
         ?dsd qb:component/qb:measure ?measure .
        
         ?measure rdfs:label ?labelen.         
-        BIND(IF(BOUND(?labelen), ?labelen,"NO LABEL !!!"@en) AS ?label)
+        BIND(IF(BOUND(?labelen), ?labelen, "No label found"@en) AS ?label)
         OPTIONAL{{filter(langMatches(lang(?labelen),"en")).}}
     }}
     """
