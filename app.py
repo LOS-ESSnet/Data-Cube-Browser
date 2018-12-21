@@ -17,7 +17,7 @@ queries_dir="sparql/"
 for queries in load_queries(queries_dir):
     queries
 	
-app = dash.Dash()
+app = dash.Dash(__name__)
 server = app.server
 
 # ----- sTYLING

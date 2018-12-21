@@ -7,7 +7,7 @@ SCOTT_URL = "https://statistics.gov.scot/sparql"
 
 def get_endpoints_list():
     return [
-        {"label": "PLOSH Data sets", "value": PLOSH_URL},
+        {"label": "PLOSH data sets", "value": PLOSH_URL},
         {"label": "Scotland's official statistics", "value": SCOTT_URL}
         ]
 
