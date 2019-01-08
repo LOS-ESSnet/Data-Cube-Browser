@@ -13,19 +13,14 @@ def get_endpoints_list():
 
 def query_datasets(target_url):
     QUERY = """
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX qb: <http://purl.org/linked-data/cube#>
-    PREFIX mes: <http://id.insee.fr/meta/mesure/>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
 
-    SELECT ?label ?comment ?dataset_uri  where {           
-        ?dataset_uri a qb:DataSet .
-        OPTIONAL{ 
-            ?dataset_uri rdfs:label ?label .
-            #filter(langMatches(lang(?label),"fr"))
-            ?dataset_uri rdfs:comment ?comment.
-            
-        }
+    SELECT ?label ?comment ?dataset_uri where {           
+        ?dataset_uri a qb:DataSet ; rdfs:label ?label  .
+		OPTIONAL {
+			?dataset_uri rdfs:comment ?comment.
+		}
     }
     """
 
