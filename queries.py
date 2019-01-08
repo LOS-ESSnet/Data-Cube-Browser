@@ -124,7 +124,7 @@ def query_data(target_url, dataset_uri, dimension1, dimension2, measures_info):
 	PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX qb: <http://purl.org/linked-data/cube#>
 
-    SELECT ?concept1 ?concept2 (SUM(?value) as ?total) where {
+    SELECT ?concept1 ?concept2 (SUM(?value) as ?total) where {{
         ?obs qb:dataSet <{dataset_uri}> .
         ?obs <{dimension1}> ?dim1 .
         ?obs <{dimension2}> ?dim2 .
@@ -132,7 +132,7 @@ def query_data(target_url, dataset_uri, dimension1, dimension2, measures_info):
 
         ?dim1 rdfs:label ?concept1 .
         ?dim2 rdfs:label ?concept2 .
-    }
+    }}
     GROUP BY ?concept1 ?concept2
     """
 
