@@ -82,19 +82,13 @@ def query_measures(target_url, dataset_uri):
     sparql.setReturnFormat(JSON)
     
     query = f"""
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX qb: <http://purl.org/linked-data/cube#>
-    PREFIX mes: <http://id.insee.fr/meta/mesure/>
-    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
 
-    SELECT distinct ?measure ?label where {{ 
-        #?s a qb:DataSet.
-        <{dataset_uri}> qb:structure ?dsd.
+    SELECT ?measure ?label where {{ 
+        <{dataset_uri}> qb:structure ?dsd .
         ?dsd qb:component/qb:measure ?measure .
-       
-        ?measure rdfs:label ?labelen.         
-        BIND(IF(BOUND(?labelen), ?labelen, "No label found"@en) AS ?label)
-        OPTIONAL{{filter(langMatches(lang(?labelen),"en")).}}
+        ?measure rdfs:label ?label .         
     }}
     """
 
