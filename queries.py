@@ -58,20 +58,14 @@ def query_dimensions(target_url, dataset_uri):
     sparql.setReturnFormat(JSON)
     
     query = f"""
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    PREFIX qb: <http://purl.org/linked-data/cube#>
-    PREFIX mes: <http://id.insee.fr/meta/mesure/>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+    PREFIX qb: <http://purl.org/linked-data/cube#>
 
-   SELECT DISTINCT ?concept ?dim where {{           
-        <{dataset_uri}> qb:structure ?dsd.
-        ?dsd qb:component/qb:dimension ?dim.
-        ?dim rdfs:label ?labelfr.
-        
-        ?dim qb:concept ?o.
-        ?o rdfs:label ?concept .
-
-        filter(langMatches(lang(?concept),"en"))
+    SELECT ?concept ?dim where {{           
+        <{dataset_uri}> qb:structure ?dsd .
+        ?dsd qb:component/qb:dimension ?dim .
+        ?dim rdfs:label ?concept .
+        #filter(langMatches(lang(?concept), "en"))
     }} 
     """
 
@@ -154,7 +148,9 @@ def query_data(target_url, dataset_uri, dimension1, dimension2, measures_info):
     }}
     GROUP BY ?concept1 ?concept2
     """
-    
+
+    print(query)
+
     sparql.setQuery(query)
     results = sparql.query().convert()
     
