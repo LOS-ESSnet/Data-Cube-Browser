@@ -7,25 +7,20 @@ SCOTT_URL = "https://statistics.gov.scot/sparql"
 
 def get_endpoints_list():
     return [
-        {"label": "PLOSH Data sets", "value": PLOSH_URL},
+        {"label": "PLOSH data sets", "value": PLOSH_URL},
         {"label": "Scotland's official statistics", "value": SCOTT_URL}
         ]
 
 def query_datasets(target_url):
     QUERY = """
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX qb: <http://purl.org/linked-data/cube#>
-    PREFIX mes: <http://id.insee.fr/meta/mesure/>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
 
-    SELECT ?label ?comment ?dataset_uri  where {           
-        ?dataset_uri a qb:DataSet .
-        OPTIONAL{ 
-            ?dataset_uri rdfs:label ?label .
-            #filter(langMatches(lang(?label),"fr"))
-            ?dataset_uri rdfs:comment ?comment.
-            
-        }
+    SELECT ?label ?comment ?dataset_uri where {           
+        ?dataset_uri a qb:DataSet ; rdfs:label ?label  .
+		OPTIONAL {
+			?dataset_uri rdfs:comment ?comment.
+		}
     }
     """
 
@@ -63,20 +58,14 @@ def query_dimensions(target_url, dataset_uri):
     sparql.setReturnFormat(JSON)
     
     query = f"""
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    PREFIX qb: <http://purl.org/linked-data/cube#>
-    PREFIX mes: <http://id.insee.fr/meta/mesure/>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+    PREFIX qb: <http://purl.org/linked-data/cube#>
 
-   SELECT DISTINCT ?concept ?dim where {{           
-        <{dataset_uri}> qb:structure ?dsd.
-        ?dsd qb:component/qb:dimension ?dim.
-        ?dim rdfs:label ?labelfr.
-        
-        ?dim qb:concept ?o.
-        ?o rdfs:label ?concept .
-
-        filter(langMatches(lang(?concept),"en"))
+    SELECT ?label ?value where {{           
+        <{dataset_uri}> qb:structure ?dsd .
+        ?dsd qb:component/qb:dimension ?value .
+        ?value rdfs:label ?label .
+        #filter(langMatches(lang(?label), "en"))
     }} 
     """
 
@@ -84,8 +73,8 @@ def query_dimensions(target_url, dataset_uri):
     results = sparql.query().convert()
     results=results["results"]["bindings"]
     keys=list(results[0].keys())
-    
-    return [keys,[{'label': result[keys[0]]['value'],'value': result[keys[1]]['value']} for result in results]]
+   
+    return [{keys[0]: result[keys[0]]['value'],keys[1]: result[keys[1]]['value']} for result in results]
     
 def query_measures(target_url, dataset_uri):
     
@@ -93,19 +82,14 @@ def query_measures(target_url, dataset_uri):
     sparql.setReturnFormat(JSON)
     
     query = f"""
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX qb: <http://purl.org/linked-data/cube#>
-    PREFIX mes: <http://id.insee.fr/meta/mesure/>
-    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
 
-    SELECT distinct ?measure ?label where {{ 
-        #?s a qb:DataSet.
-        <{dataset_uri}> qb:structure ?dsd.
+    SELECT ?measure ?label where {{ 
+        <{dataset_uri}> qb:structure ?dsd .
         ?dsd qb:component/qb:measure ?measure .
-       
-        ?measure rdfs:label ?labelen.         
-        BIND(IF(BOUND(?labelen), ?labelen, "No label found"@en) AS ?label)
-        OPTIONAL{{filter(langMatches(lang(?labelen),"en")).}}
+        ?measure rdfs:label ?label .
+		FILTER (STRLEN(?label) > 0)
     }}
     """
 
@@ -137,34 +121,30 @@ def query_data(target_url, dataset_uri, dimension1, dimension2, measures_info):
     sparql.setReturnFormat(JSON)
     
     query = f"""
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+	PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX qb: <http://purl.org/linked-data/cube#>
-    PREFIX mes: <http://id.insee.fr/meta/mesure/>
-    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
- 
-    SELECT DISTINCT ?concept1 ?concept2 (SUM(?value) as ?value) where {{           
-        <{dataset_uri}> qb:structure ?dsd.
-        ?dsd qb:component/qb:dimension  <{dimension1}> .
-        ?dsd qb:component/qb:dimension <{dimension2}>  .
-        ?dsd qb:component/qb:measure <{measures_info}>  .
-        
+
+    SELECT ?concept1 ?concept2 (SUM(?value) as ?total) where {{
+        ?obs qb:dataSet <{dataset_uri}> .
         ?obs <{dimension1}> ?dim1 .
         ?obs <{dimension2}> ?dim2 .
         ?obs <{measures_info}> ?value .
-       
-        ?dim1 skos:notation ?concept1 .
-        ?dim2 skos:notation ?concept2 .
-  
+
+        ?dim1 rdfs:label|skos:notation ?concept1 .
+        ?dim2 rdfs:label|skos:notation ?concept2 .
+        FILTER (STRLEN(?concept1) > 0)
+        FILTER (STRLEN(?concept2) > 0)
+
     }}
     GROUP BY ?concept1 ?concept2
     """
-    
+
     sparql.setQuery(query)
     results = sparql.query().convert()
-    
+    #print(results)
     df=queryToDataFrame(results)
-
-    return df.pivot(index='concept1', columns='concept2', values='value').reset_index()
+	
+    return df.pivot(index='concept1', columns='concept2', values='total').reset_index()
 
 
