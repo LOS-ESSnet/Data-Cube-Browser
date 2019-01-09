@@ -118,12 +118,11 @@ def test(input_value):
 )
 def get_dimensions(dataset_uri, endpoint):
     dim_data = query_dimensions(endpoint, dataset_uri)
-    dim_rows = dim_data[1]
-
+	
     if dataset_uri == "":
         return []
     else:
-        return dim_rows
+        return dim_data
 
 @app.callback(
     Output(component_id = "measures", component_property = "options"),
@@ -132,9 +131,6 @@ def get_dimensions(dataset_uri, endpoint):
 )
 def get_measures(dataset_uri, endpoint):
     measures_data = query_measures(endpoint, dataset_uri)
-
-    for o in measures_data:
-        print(o)
 
     if dataset_uri == "":
         return []
@@ -173,9 +169,12 @@ def button_display(dim_info, measures_info):
     [ State("endpoints-list", "value"), State("datasets-list", "value"), State("dimensions", "values"), State("measures", "values") ]
 )
 def execute_query(input_value, endpoint, dataset_uri, dim_info, measures_info):
-    print(dim_info)
-    print(measures_info)
+
+    #print(dim_info)
+    #print(measures_info)
     df = query_data( endpoint, dataset_uri, dim_info[0], dim_info[1], measures_info[0] )
+
+    #print(df)
     
     return html.Table(
         #Header

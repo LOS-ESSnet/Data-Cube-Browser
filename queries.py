@@ -61,11 +61,11 @@ def query_dimensions(target_url, dataset_uri):
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
     PREFIX qb: <http://purl.org/linked-data/cube#>
 
-    SELECT ?concept ?dim where {{           
+    SELECT ?label ?value where {{           
         <{dataset_uri}> qb:structure ?dsd .
-        ?dsd qb:component/qb:dimension ?dim .
-        ?dim rdfs:label ?concept .
-        #filter(langMatches(lang(?concept), "en"))
+        ?dsd qb:component/qb:dimension ?value .
+        ?value rdfs:label ?label .
+        #filter(langMatches(lang(?label), "en"))
     }} 
     """
 
@@ -73,8 +73,8 @@ def query_dimensions(target_url, dataset_uri):
     results = sparql.query().convert()
     results=results["results"]["bindings"]
     keys=list(results[0].keys())
-    
-    return [keys,[{'label': result[keys[0]]['value'],'value': result[keys[1]]['value']} for result in results]]
+   
+    return [{keys[0]: result[keys[0]]['value'],keys[1]: result[keys[1]]['value']} for result in results]
     
 def query_measures(target_url, dataset_uri):
     
@@ -123,6 +123,7 @@ def query_data(target_url, dataset_uri, dimension1, dimension2, measures_info):
     query = f"""
 	PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX qb: <http://purl.org/linked-data/cube#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 
     SELECT ?concept1 ?concept2 (SUM(?value) as ?total) where {{
         ?obs qb:dataSet <{dataset_uri}> .
@@ -130,19 +131,20 @@ def query_data(target_url, dataset_uri, dimension1, dimension2, measures_info):
         ?obs <{dimension2}> ?dim2 .
         ?obs <{measures_info}> ?value .
 
-        ?dim1 rdfs:label ?concept1 .
-        ?dim2 rdfs:label ?concept2 .
+        ?dim1 rdfs:label|skos:notation ?concept1 .
+        ?dim2 rdfs:label|skos:notation ?concept2 .
+        FILTER (STRLEN(?concept1) > 0)
+        FILTER (STRLEN(?concept2) > 0)
+
     }}
     GROUP BY ?concept1 ?concept2
     """
 
-    print(query)
-
     sparql.setQuery(query)
     results = sparql.query().convert()
-    
+    #print(results)
     df=queryToDataFrame(results)
-
-    return df.pivot(index='concept1', columns='concept2', values='value').reset_index()
+	
+    return df.pivot(index='concept1', columns='concept2', values='total').reset_index()
 
 
