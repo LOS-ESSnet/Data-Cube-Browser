@@ -27,3 +27,16 @@ Access by:
 
 Main purpose of the user:
 * See how the datasets look like to be able to define the usefull comparaisons he can make without knowing sparql
+
+# Usage
+
+Install Dash (https://plot.ly/products/dash/)and required components
+pip install dash dash_core_components dash_html_components
+
+Install SPARQLWrapper for queries and pandas for displaying results
+pip install SPARQLWrapper pandas
+
+Run application:
+python app.py
+
+Navigate to http://127.0.0.1:8050/
